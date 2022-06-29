@@ -102,12 +102,15 @@ class PfrScraper(Scraper):
         week_elements = seasoned_soup.find(id='div_week_games').find_all('a')
         num_weeks = len(week_elements)
         week_summary_links = []
+        week_labels = []
         for week in range(1, num_weeks+1):
             week_summary_links.append(week_elements[week-1]['href'])
+            week_labels.append(week_elements[week-1].get_text())
         df = pd.DataFrame({
             'season': int(season),
             'num_weeks': num_weeks,
-            'week_summary_links': ','.join(week_summary_links)},
+            'week_summary_links': ','.join(week_summary_links),
+            'week_labels': ','.join(week_labels)},
             index=[0]
         )
         return df
@@ -181,6 +184,7 @@ class PfrScraper(Scraper):
             print('Specific Team Selection not allowed at this point.')
             return None
 
+        game_summaries_df = None
         for season in seasons:
             # Get Season Summary
             season_sum_html = self.load_season_summary(season)
@@ -188,7 +192,8 @@ class PfrScraper(Scraper):
                 self.request_season_summaries([season])
                 season_sum_html = self.load_season_summary(season)
             season_sum_df = self.scrape_season_summary(season_sum_html)
-            num_weeks = season_sum_df
+            num_weeks = season_sum_df['num_weeks']
+            week_labels = week_sum_df['week_labels'][0].split(',')
             # Get Week Summaries
             for week in range(1, num_weeks+1):
                 week_sum_html = self.load_week_summary(
@@ -202,9 +207,23 @@ class PfrScraper(Scraper):
                 for game_link in game_links:
                     game_html = self.get_with_requests(
                         self.base_url+game_link)
-                    game_summary_df = self.scrape_game_summary(game_html)
+                    # Add Additional Info At this level
+                    game_summary_df = pd.DataFrame()
+                    game_summary_df['pfr_link'] = [game_link]
+                    game_summary_df['week_no'] = week
+                    game_summary_df['week_label'] = week_labels[week-1]
+                    game_summary_df = self.scrape_game_summary(
+                        game_html, game_summary_df)
+
+                    if game_summaries_df is None:
+                        game_summaries_df = game_summary_df
+                    game_summaries_df = pd.concat(
+                        [game_summaries_df, game_summary_df], ignore_index=True)
                     # TODO - save summary and be able to load instead of request every time
 
-    def scrape_game_summary(self, game_html):
+    def scrape_game_summary(self, game_html, game_summary_df):
         game_soup = BeautifulSoup(game_html, 'html.parser')
+        # Take link and parse ID
+        game_summary_df['game_id']
+
         return None
