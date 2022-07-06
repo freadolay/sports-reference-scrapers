@@ -26,7 +26,14 @@ def check_if_startswith(sub_str, text_list):
     for x in text_list:
         if x.startswith(sub_str):
             tf = True
-
             value = x[len(sub_str):].strip()
             return tf, value
     return False, None
+
+
+def game_info_check(header, tbl):
+    if header in tbl['Game Info'].to_list():
+        value = tbl.loc[tbl['Game Info'] == header, 'Game Info.1'].values[0]
+        return True, value
+    else:
+        return False, None
