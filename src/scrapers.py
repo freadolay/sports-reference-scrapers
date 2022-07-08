@@ -222,6 +222,7 @@ class PfrScraper(Scraper):
                         # Add Additional Info At this level
                         game_summary_df = pd.DataFrame()
                         game_summary_df['pfr_link'] = [game_link]
+                        game_summary_df['season'] = season
                         game_summary_df['week_no'] = week
                         game_summary_df['week_label'] = week_labels[week-1]
                         # Parse inputted attributes
