@@ -32,8 +32,9 @@ def check_if_startswith(sub_str, text_list):
 
 
 def game_info_check(header, tbl):
-    if header in tbl['Game Info'].to_list():
-        value = tbl.loc[tbl['Game Info'] == header, 'Game Info.1'].values[0]
+    if any(tbl.loc[:, tbl.columns[0]].str.startswith(header)):
+        value = tbl.loc[tbl.loc[:, tbl.columns[0]].str.startswith(
+            header), tbl.columns[1]].values[0]
         return True, value
     else:
         return False, None
