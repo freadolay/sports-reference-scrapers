@@ -32,6 +32,7 @@ class Scraper:
             driver.execute_script(instruction)
         time.sleep(self.selenium_delay)  # this seems to work best
         html_source = driver.execute_script("return document.body.innerHTML;")
+        driver.quit()
         return html_source
 
     def get_with_requests(self, url):
